@@ -2,109 +2,9 @@
 
 A comprehensive web-based Student Attendance and Result Portal designed for university management. This project serves as a centralized platform for Admins, Teachers, and Students to manage academic activities efficiently.
 
-(Note: Replace the image link above with a screenshot of your actual login page)
+Note: Replace the image link above with a screenshot of your actual login page.
 
-# Live Demo
-
-Click here to view the Live Project 
-https://sarpuniversityportalproject.netlify.app/
-
-# Project Overview
-
-This project is developed as part of the SE-1001 Introduction to Software Engineering course (Fall 2025). It replaces manual paper-based systems with a digital solution for tracking attendance, managing course assessments, and generating automated transcripts.
-
-# Key Objectives:
-
-Centralized Data: Unified system for students, faculty, and admin.
-
-Automation: Automatic calculation of Grades, GPAs, and Attendance percentages.
-
-Accessibility: Responsive design for easy access on desktop and mobile.
-
-Persistence: Uses localStorage to simulate a real-time database experience without a backend.
-
-Features
-
-Admin Module
-
-User Management: Register new Students and Teachers securely.
-
-Course Management: Create new courses, assign credit hours, and allocate instructors.
-
-Dashboard Analytics: Real-time overview of total users and active courses.
-
-Teacher Module
-
-Attendance Management: Mark daily attendance and download PDF Reports.
-
-Assessment Creation: Create Quizzes, Assignments, Projects, Midterms, and Finals.
-
-Grading System: Enter marks for assessments; the system auto-calculates total percentages.
-
-Final Results: Generate and publish final letter grades (A, B, C, F) based on aggregate scores.
-
-Student Module
-
-Dashboard: View enrolled courses and credit hours.
-
-Attendance Tracker: Monitor attendance percentage per course (Color-coded status).
-
-Detailed Marks: View a breakdown of marks for every quiz, assignment, and exam.
-
-Academic Transcript: Real-time view of SGPA, CGPA, and Grade Points.
-
-Tech Stack
-
-Frontend: HTML5, CSS3
-
-Styling Framework: Tailwind CSS (via CDN)
-
-Scripting: Vanilla JavaScript (ES6+)
-
-Storage: Browser LocalStorage (No SQL/NoSQL database required)
-
-Libraries: * jspdf & jspdf-autotable (For generating PDF reports)
-
-FontAwesome (For icons)
-
-Default Credentials
-
-Use these credentials to test the different roles in the application:
-
-Role
-
-User ID
-
-Password
-
-Admin
-
-admin
-
-123
-
-Teacher
-
-teacher
-
-123
-
-Student
-
-student
-
-123
-
-Launch:
-
-Simply open index.html in any modern web browser (Chrome, Edge, Firefox).
-
-Note: Since it uses localStorage, no server setup (Node.js/PHP) is required.
-
-Group Members
-
-Section: SE-3A
-
+# Section: SE-3A
 Instructor: Mr. Muhammad Talha Dar
 
 Muhammad Ahmad (24F-3016)
@@ -113,10 +13,92 @@ Muhammad Hasham (24F-3039)
 
 Muhammad Hassan Ahmad (24F-3101)
 
+# Live Demo
+
+👉 Click here to view the Live Project:
+https://sarpuniversityportalproject.netlify.app/
+
+# Project Overview
+
+This project is developed as part of the SE-1001: Introduction to Software Engineering (Fall 2025) course. It replaces manual paper systems with a digital solution for:
+
+Tracking attendance
+
+Managing course assessments
+
+Generating automated transcripts
+
+# Key Objectives
+
+Centralized Data: Unified system for students, faculty, and admin
+
+Automation: Automatic calculation of Grades, GPAs, Attendance%
+
+Accessibility: Fully responsive UI (desktop + mobile)
+
+Persistence: Uses localStorage as a simulated DB (no backend)
+
+# Features
+ Admin Module
+
+User Management: Register Students & Teachers
+
+Course Management: Add courses, credit hours, assign instructors
+
+Dashboard Analytics: See total users, active courses
+
+ Teacher Module
+
+Attendance Management: Mark daily attendance + PDF download
+
+Assessment Creation: Quizzes, Assignments, Projects, Midterms, Finals
+
+Grading System: Enter marks → auto-percentage calculation
+
+Final Results: Publish final letter grades (A, B, C, F)
+
+ Student Module
+
+Dashboard: View enrolled courses & credit hours
+
+Attendance Tracker: Color-coded attendance percentage
+
+Detailed Marks: View all quizzes, assignments, exams
+
+Academic Transcript: Live SGPA, CGPA, and grade points
+
+# Tech Stack
+
+Frontend: HTML5, CSS3
+
+Styling: Tailwind CSS (CDN)
+
+Scripting: Vanilla JavaScript (ES6+)
+
+Storage: Browser localStorage
+
+Libraries:
+
+jspdf & jspdf-autotable (PDF reports)
+
+FontAwesome (icons)
+
+# Default Credentials
+Role	User ID	Password
+Admin	admin	123
+Teacher	teacher	123
+Student	student	123
+Launch Instructions
+
+Download or clone the project
+
+Open index.html in any modern browser (Chrome, Edge, Firefox)
+
+No server setup required — runs fully on localStorage
+
+Group Members
+
 Screenshots
-<img width="588" height="408" alt="image" src="https://github.com/user-attachments/assets/642f602b-a5b0-4c70-9b00-c01b7678dcd3" />
+<img width="435" height="503" alt="image" src="https://github.com/user-attachments/assets/05b1e489-901b-456f-a7da-1a7f24b068f1" />
 
 
-Login Screen
-
-Student Dashboard
