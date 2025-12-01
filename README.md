@@ -69,15 +69,13 @@ Academic Transcript: Live SGPA, CGPA, and grade points
 
 Frontend: HTML5, CSS3
 
-Styling: Tailwind CSS (CDN)
+Styling: CSS (CDN)
 
-Scripting: Vanilla JavaScript (ES6+)
+Scripting: JavaScript 
 
 Storage: Browser localStorage
 
 Libraries:
-
-jspdf & jspdf-autotable (PDF reports)
 
 FontAwesome (icons)
 
