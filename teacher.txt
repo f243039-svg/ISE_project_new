@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PDF Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="toast"><div class="toast-content"><i class="fas fa-info-circle"></i><span id="toast-msg">Notification</span></div></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <aside class="sidebar">
+            <div class="h-16 flex items-center px-6 bg-slate-950">
+                <span class="font-bold text-xl text-white">NUCES <span class="text-blue-500">Portal</span></span>
+            </div>
+            <div class="p-6 border-b border-slate-800 bg-slate-900">
+                <p class="text-xs text-slate-500 uppercase font-bold mb-1">Current User</p>
+                <p class="text-sm font-bold text-white" id="nav-user-name">User</p>
+                <p class="text-xs text-blue-400 mt-1" id="nav-user-role">Teacher</p>
+            </div>
+            <nav class="flex-1 py-4 space-y-1">
+                <button onclick="renderDash()" class="nav-item active"><i class="fas fa-chalkboard-user w-5"></i> Dashboard</button>
+                <button onclick="renderAtt()" class="nav-item"><i class="fas fa-clipboard-check w-5"></i> Attendance</button>
+                <button onclick="renderMarks()" class="nav-item"><i class="fas fa-upload w-5"></i> Upload Marks</button>
+                <button onclick="renderFinal()" class="nav-item"><i class="fas fa-graduation-cap w-5"></i> Final Result</button>
+            </nav>
+            <div class="p-4 border-t border-slate-800 bg-slate-900">
+                <button onclick="utils.logout()" class="nav-item text-slate-400 hover:text-white"><i class="fas fa-sign-out-alt w-5"></i> Log Out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-slate-100 p-6 md:p-10" id="content-area"></main>
+    </div>
+
+    <script src="logic.js"></script>
+    <script>
+        const currentUser = utils.checkAuth('teacher');
+        const { jsPDF } = window.jspdf;
+
+        function renderDash() {
+            document.getElementById('content-area').innerHTML = `<div class="stat-card fade-in"><h2 class="text-2xl font-bold mb-2">Welcome, ${currentUser.name}</h2><p class="text-slate-500">Faculty Dashboard</p></div>`;
+        }
+
+        function renderAtt() {
+            const opts = db.getTeacherCourses(currentUser.id).map(c => `<option value="${c.code}">${c.code}</option>`).join('');
+            document.getElementById('content-area').innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-6"><h2 class="text-2xl font-bold">Attendance</h2></div>
+                    <div class="stat-card mb-6 flex gap-4 items-end">
+                        <div class="flex-grow"><label>Course</label><select id="att-course">${opts}</select></div>
+                        <div class="w-48"><label>Date</label><input type="date" id="att-date" value="${new Date().toISOString().split('T')[0]}"></div>
+                        <button onclick="loadAtt()" class="bg-slate-800 text-white px-6 py-2.5 rounded">Load</button>
+                    </div>
+                    <div id="att-area" class="hidden stat-card">
+                        <div class="flex justify-between mb-4"><h3 class="font-bold">Student List</h3><div><button onclick="saveAtt()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm mr-2">Save</button></div></div>
+                        <div id="att-table"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadAtt() {
+            const code = document.getElementById('att-course').value;
+            const students = db.getEnrollments(code);
+            document.getElementById('att-area').classList.remove('hidden');
+            const rows = students.map(s => {
+                const u = db.getUser(s.studentId);
+                return `<tr><td class="py-3">${u.name}</td><td class="text-right"><select class="att-select border rounded px-2 py-1" data-sid="${u.id}"><option value="P">Present</option><option value="A">Absent</option></select></td></tr>`;
+            }).join('');
+            document.getElementById('att-table').innerHTML = `<table><thead><tr><th>Student</th><th class="text-right">Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        function saveAtt() {
+            const code = document.getElementById('att-course').value;
+            const date = document.getElementById('att-date').value;
+            const recs = Array.from(document.querySelectorAll('.att-select')).map(s => ({ date, courseCode: code, studentId: s.dataset.sid, status: s.value }));
+            db.addAttendance(recs);
+            utils.toast('Attendance Saved');
+        }
+
+        function renderMarks() {
+            const opts = db.getTeacherCourses(currentUser.id).map(c => `<option value="${c.code}">${c.code}</option>`).join('');
+            document.getElementById('content-area').innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-6"><h2 class="text-2xl font-bold">Upload Marks</h2></div>
+                    <div class="stat-card mb-8">
+                        <div class="grid grid-cols-5 gap-4 items-end">
+                            <div class="col-span-2"><label>Course</label><select id="m-course">${opts}</select></div>
+                            <div><label>Type</label><select id="m-type"><option>Quiz</option><option>Assignment</option><option>Midterm</option><option>Final Exam</option></select></div>
+                            <div><label>Total</label><input type="number" id="m-total"></div>
+                            <div><label>Title</label><input type="text" id="m-title"></div>
+                        </div>
+                        <button onclick="createAssess()" class="mt-4 bg-blue-900 text-white px-6 py-2 rounded float-right">Start</button>
+                        <div class="clear-both"></div>
+                    </div>
+                    <div id="mark-area" class="hidden stat-card">
+                        <div id="mark-table"></div>
+                        <button onclick="saveMarks()" class="mt-4 bg-green-600 text-white px-6 py-2 rounded">Save Marks</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createAssess() {
+            const course = document.getElementById('m-course').value;
+            const type = document.getElementById('m-type').value;
+            const title = document.getElementById('m-title').value;
+            const total = document.getElementById('m-total').value;
+            if(!title || !total) return alert('Fill fields');
+            
+            const aid = db.createAssessment({ courseCode: course, type, title, totalMarks: parseFloat(total) });
+            document.getElementById('mark-area').dataset.aid = aid;
+            document.getElementById('mark-area').classList.remove('hidden');
+            
+            const rows = db.getEnrollments(course).map(s => {
+                const u = db.getUser(s.studentId);
+                return `<tr><td class="py-3">${u.name}</td><td class="text-right"><input type="number" max="${total}" class="mark-inp border rounded px-2 py-1 w-24 text-right" data-sid="${u.id}"></td></tr>`;
+            }).join('');
+            document.getElementById('mark-table').innerHTML = `<table><thead><tr><th>Student</th><th class="text-right">Obtained</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        function saveMarks() {
+            const aid = document.getElementById('mark-area').dataset.aid;
+            const marks = Array.from(document.querySelectorAll('.mark-inp')).map(i => ({ assessmentId: aid, studentId: i.dataset.sid, obtainedMarks: parseFloat(i.value||0) }));
+            db.saveMarks(marks);
+            utils.toast('Marks Saved');
+            document.getElementById('mark-area').classList.add('hidden');
+        }
+
+        function renderFinal() {
+            const opts = db.getTeacherCourses(currentUser.id).map(c => `<option value="${c.code}">${c.code}</option>`).join('');
+            document.getElementById('content-area').innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-6"><h2 class="text-2xl font-bold">Final Result</h2></div>
+                    <div class="stat-card mb-6 flex gap-4"><select id="f-course" class="flex-grow">${opts}</select><button onclick="genFinal()" class="bg-slate-800 text-white px-6 rounded">Generate</button></div>
+                    <div id="final-area" class="hidden stat-card">
+                        <div class="flex justify-between mb-4"><h3 class="font-bold">Grade Sheet</h3><button onclick="pubFinal()" class="bg-green-600 text-white px-4 py-2 rounded font-bold">Publish</button></div>
+                        <div id="final-table"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calcGrade(perc) {
+            if(perc >= 86) return { g:'A', p:4.0 };
+            if(perc >= 82) return { g: 'A-', p: 3.67 };
+            if(perc >= 78) return { g: 'B+', p: 3.33 };
+            if(perc >= 74) return { g: 'B', p: 3.0 };
+            if(perc >= 70) return { g: 'B-', p: 2.67 };
+            if(perc >= 66) return { g: 'C+', p: 2.33 };
+            if(perc >= 62) return { g: 'C', p: 2.0 };
+            if(perc >= 58) return { g: 'C-', p: 1.67 };
+            if(perc >= 54) return { g: 'D+', p: 1.33 };
+            if(perc >= 50) return { g: 'D', p: 1.0 };
+            return { g:'F', p:0.0 };
+        }
+
+        function genFinal() {
+            const code = document.getElementById('f-course').value;
+            const assesses = db.getAssessments(code);
+            let total = 0;
+            assesses.forEach(a => total += a.totalMarks);
+            
+            if(total === 0) return alert('No assessments');
+            document.getElementById('final-area').classList.remove('hidden');
+
+            const rows = db.getEnrollments(code).map(s => {
+                const u = db.getUser(s.studentId);
+                let obt = 0;
+                assesses.forEach(a => obt += db.getObtainedMarks(a.id, u.id));
+                const perc = (obt/total)*100;
+                const gr = calcGrade(perc);
+                return `<tr><td>${u.name}</td><td class="text-center">${obt}/${total}</td><td class="text-center font-bold">${perc.toFixed(1)}%</td><td class="text-center font-bold">${gr.g}</td>
+                <input type="hidden" class="fin-data" data-sid="${u.id}" data-p="${perc}" data-g="${gr.g}" data-gp="${gr.p}"></tr>`;
+            }).join('');
+            document.getElementById('final-table').innerHTML = `<table><thead><tr><th>Student</th><th class="text-center">Total</th><th class="text-center">%</th><th class="text-center">Grade</th></tr></thead><tbody>${rows}</tbody></table>`;
+        }
+
+        function pubFinal() {
+            const code = document.getElementById('f-course').value;
+            const inputs = document.querySelectorAll('.fin-data');
+            inputs.forEach(i => db.saveFinalGrade({ courseCode: code, studentId: i.dataset.sid, percentage: i.dataset.p, grade: i.dataset.g, gradePoint: i.dataset.gp }));
+            utils.toast('Published');
+        }
+
+        renderDash();
+    </script>
+</body>
+</html>
