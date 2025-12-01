@@ -2,8 +2,6 @@
 
 A comprehensive web-based Student Attendance and Result Portal designed for university management. This project serves as a centralized platform for Admins, Teachers, and Students to manage academic activities efficiently.
 
-Note: Replace the image link above with a screenshot of your actual login page.
-
 # Section: SE-3A
 Instructor: Mr. Muhammad Talha Dar
 
